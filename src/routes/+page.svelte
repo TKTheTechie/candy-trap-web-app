@@ -2,7 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
-	import { AlarmGenerator, loadAudioFile } from '$lib/audioUtils';
+	import { AlarmGenerator, loadAudioFile, playAudioWithMobileSupport } from '$lib/audioUtils';
 	import { getSolaceConfig, validateSolaceConfig } from '$lib/config';
 
 	let currentScreen: 'splash' | 'scanning' | 'alert' = 'splash';
@@ -245,27 +245,46 @@
 
 	async function triggerAlert() {
 		isAlertActive = true;
+		console.log('🚨 Alert triggered!');
 		
-		// Play alarm sound
+		// Vibrate on mobile devices (if supported)
+		if (browser && 'vibrate' in navigator) {
+			// Vibration pattern: vibrate 500ms, pause 200ms, repeat
+			navigator.vibrate([500, 200, 500, 200, 500, 200, 500, 200, 500]);
+			console.log('📳 Vibration triggered');
+		}
+		
+		// Play alarm sound with mobile support
+		let audioPlayed = false;
+		
 		if (alarmAudio) {
 			try {
 				alarmAudio.loop = true;
-				await alarmAudio.play();
+				audioPlayed = await playAudioWithMobileSupport(alarmAudio);
+				
+				if (!audioPlayed) {
+					console.log('HTML audio failed, trying generated sound...');
+				}
 			} catch (error) {
 				console.error('Error playing audio file:', error);
-				// Fallback to generated sound
-				if (alarmGenerator) {
-					alarmGenerator.playAlarm();
-				}
 			}
-		} else if (alarmGenerator) {
-			// Use generated alarm sound
+		}
+		
+		// Fallback to generated sound if HTML audio didn't play
+		if (!audioPlayed && alarmGenerator) {
+			console.log('Using generated alarm sound');
 			alarmGenerator.playAlarm();
 		}
 
 		// Stop alert after 5 seconds
 		setTimeout(() => {
 			isAlertActive = false;
+			
+			// Stop vibration
+			if (browser && 'vibrate' in navigator) {
+				navigator.vibrate(0);
+			}
+			
 			if (alarmAudio) {
 				alarmAudio.pause();
 				alarmAudio.currentTime = 0;
@@ -273,11 +292,30 @@
 			if (alarmGenerator) {
 				alarmGenerator.stopAlarm();
 			}
+			console.log('🔕 Alert stopped');
 		}, 5000);
 	}
 
 	function startScanning() {
 		currentScreen = 'scanning';
+		
+		// Unlock audio on user interaction (required for mobile)
+		if (alarmGenerator) {
+			alarmGenerator.unlockAudio();
+		}
+		
+		// Also try to unlock HTML audio element
+		if (alarmAudio) {
+			// Play and immediately pause to unlock on mobile
+			alarmAudio.play().then(() => {
+				alarmAudio?.pause();
+				if (alarmAudio) alarmAudio.currentTime = 0;
+				console.log('🔊 HTML Audio unlocked for mobile');
+			}).catch(() => {
+				// Ignore errors - this is just to unlock
+			});
+		}
+		
 		connectToSolace();
 		
 		// Start scanning animation counters
