@@ -14,7 +14,7 @@ A fun, LEGO-themed web application designed for Cub Scouts (ages 7-8) that demon
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 20+ 
 - npm or yarn
 - Solace PubSub+ Cloud account (optional for demo mode)
 
@@ -207,7 +207,7 @@ This project is open source and available under the MIT License.
 - Use demo mode for offline demonstrations
 
 ### Build Issues
-- Ensure Node.js 18+ is installed
+- Ensure Node.js 20+ is installed
 - Clear `node_modules` and reinstall dependencies
 - Check for TypeScript errors
 
