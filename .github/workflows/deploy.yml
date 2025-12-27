@@ -48,7 +48,7 @@ jobs:
           VITE_SOLACE_URL: ${{ vars.VITE_SOLACE_URL || secrets.VITE_SOLACE_URL || 'wss://mr-connection-kcqhqhqhqh.messaging.solace.cloud:443' }}
           VITE_SOLACE_VPN_NAME: ${{ vars.VITE_SOLACE_VPN_NAME || secrets.VITE_SOLACE_VPN_NAME || 'candy-trap-demo' }}
           VITE_SOLACE_USERNAME: ${{ vars.VITE_SOLACE_USERNAME || secrets.VITE_SOLACE_USERNAME || 'candy-trap-user' }}
-          VITE_SOLACE_PASSWORD: ${{ secrets.VITE_SOLACE_PASSWORD || 'candy123' }}
+          VITE_SOLACE_PASSWORD: ${{ vars.VITE_SOLACE_PASSWORD || 'candy123' }}
           VITE_SOLACE_TOPIC: ${{ vars.VITE_SOLACE_TOPIC || secrets.VITE_SOLACE_TOPIC || 'CANDY/ALERT' }}
 
       - name: Setup Pages
