@@ -577,28 +577,6 @@
 	.scan-corner-3 { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; animation-delay: 1s; }
 	.scan-corner-4 { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; animation-delay: 1.5s; }
 
-	/* Progress bar animations */
-	@keyframes scanProgress {
-		0% { width: 0%; }
-		50% { width: 85%; }
-		100% { width: 100%; }
-	}
-
-	@keyframes thermalProgress {
-		0% { width: 0%; }
-		30% { width: 0%; }
-		80% { width: 75%; }
-		100% { width: 100%; }
-	}
-
-	.scanning-progress {
-		animation: scanProgress 6s ease-in-out infinite;
-	}
-
-	.thermal-progress {
-		animation: thermalProgress 6s ease-in-out infinite;
-	}
-
 	/* Grid cell animation */
 	@keyframes gridScan {
 		0%, 90% { background-color: transparent; }

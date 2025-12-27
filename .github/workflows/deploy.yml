@@ -33,6 +33,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          # Set base path for GitHub Pages
+          NODE_ENV: production
           # Ensure environment variables are available during build
           VITE_SOLACE_URL: ${{ secrets.VITE_SOLACE_URL || 'wss://mr-connection-kcqhqhqhqh.messaging.solace.cloud:443' }}
           VITE_SOLACE_VPN_NAME: ${{ secrets.VITE_SOLACE_VPN_NAME || 'candy-trap-demo' }}
