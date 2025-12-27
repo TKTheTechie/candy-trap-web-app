@@ -30,17 +30,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Debug Environment Variables
+        run: |
+          echo "Environment variables for build:"
+          echo "VITE_SOLACE_URL: ${{ vars.VITE_SOLACE_URL || secrets.VITE_SOLACE_URL || 'wss://mr-connection-kcqhqhqhqh.messaging.solace.cloud:443' }}"
+          echo "VITE_SOLACE_VPN_NAME: ${{ vars.VITE_SOLACE_VPN_NAME || secrets.VITE_SOLACE_VPN_NAME || 'candy-trap-demo' }}"
+          echo "VITE_SOLACE_USERNAME: ${{ vars.VITE_SOLACE_USERNAME || secrets.VITE_SOLACE_USERNAME || 'candy-trap-user' }}"
+          echo "VITE_SOLACE_PASSWORD: [REDACTED]"
+          echo "VITE_SOLACE_TOPIC: ${{ vars.VITE_SOLACE_TOPIC || secrets.VITE_SOLACE_TOPIC || 'CANDY/ALERT' }}"
+
       - name: Build
         run: npm run build
         env:
           # Set base path for GitHub Pages
           NODE_ENV: production
-          # Ensure environment variables are available during build
-          VITE_SOLACE_URL: ${{ secrets.VITE_SOLACE_URL || 'wss://mr-connection-kcqhqhqhqh.messaging.solace.cloud:443' }}
-          VITE_SOLACE_VPN_NAME: ${{ secrets.VITE_SOLACE_VPN_NAME || 'candy-trap-demo' }}
-          VITE_SOLACE_USERNAME: ${{ secrets.VITE_SOLACE_USERNAME || 'candy-trap-user' }}
+          # Vite environment variables (these get baked into the build)
+          VITE_SOLACE_URL: ${{ vars.VITE_SOLACE_URL || secrets.VITE_SOLACE_URL || 'wss://mr-connection-kcqhqhqhqh.messaging.solace.cloud:443' }}
+          VITE_SOLACE_VPN_NAME: ${{ vars.VITE_SOLACE_VPN_NAME || secrets.VITE_SOLACE_VPN_NAME || 'candy-trap-demo' }}
+          VITE_SOLACE_USERNAME: ${{ vars.VITE_SOLACE_USERNAME || secrets.VITE_SOLACE_USERNAME || 'candy-trap-user' }}
           VITE_SOLACE_PASSWORD: ${{ secrets.VITE_SOLACE_PASSWORD || 'candy123' }}
-          VITE_SOLACE_TOPIC: ${{ secrets.VITE_SOLACE_TOPIC || 'CANDY/ALERT' }}
+          VITE_SOLACE_TOPIC: ${{ vars.VITE_SOLACE_TOPIC || secrets.VITE_SOLACE_TOPIC || 'CANDY/ALERT' }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
