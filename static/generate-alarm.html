@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Alarm Sound</title>
+</head>
+<body>
+    <h1>Alarm Sound Generator</h1>
+    <p>This page can help you generate a simple alarm sound for testing.</p>
+    <button onclick="playAlarm()">Play Test Alarm</button>
+    <button onclick="stopAlarm()">Stop Alarm</button>
+    
+    <script>
+        let audioContext;
+        let oscillator;
+        let gainNode;
+        
+        function playAlarm() {
+            if (audioContext) {
+                stopAlarm();
+            }
+            
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            oscillator = audioContext.createOscillator();
+            gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            
+            // Create alternating pattern
+            let time = audioContext.currentTime;
+            for (let i = 0; i < 20; i++) {
+                const freq = i % 2 === 0 ? 800 : 600;
+                oscillator.frequency.setValueAtTime(freq, time);
+                time += 0.25;
+            }
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            oscillator.start();
+            
+            setTimeout(stopAlarm, 5000);
+        }
+        
+        function stopAlarm() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
+    </script>
+</body>
+</html>

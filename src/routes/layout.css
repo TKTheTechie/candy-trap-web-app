@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-cub-blue: #1E3A8A;
+  --color-cub-yellow: #FDE047;
+  --color-cub-blue-dark: #1E40AF;
+  --color-cub-blue-light: #3B82F6;
+  --color-cub-yellow-dark: #EAB308;
+  --color-cub-yellow-light: #FEF08A;
+  --color-lego-red: #d50000;
+  --color-lego-green: #00a651;
+  --color-lego-orange: #ff6900;
+  --color-lego-purple: #7b2c8e;
+}
