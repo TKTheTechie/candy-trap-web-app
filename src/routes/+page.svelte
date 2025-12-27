@@ -103,46 +103,61 @@
 			solaceSession = solace.SolclientFactory.createSession(sessionProps);
 			console.log('Solace session created:', !!solaceSession);
 
-			// Set up basic event handlers only
-			console.log('Setting up basic event handlers...');
+			// Set up event handlers with defensive programming
+			console.log('Setting up event handlers...');
 			
-			// Use string event names as fallback if event codes are problematic
-			try {
-				solaceSession.on(solace.SessionEventCode.UP_NOTICE, () => {
-					console.log('✅ Connected to Solace broker successfully!');
-					isConnected = true;
-					connectionStatus = 'Connected';
-					subscribeToTopic();
-				});
-			} catch (e) {
-				console.error('Error setting UP_NOTICE handler:', e);
+			// Log available event codes for debugging
+			const availableEvents = Object.keys(solace.SessionEventCode);
+			console.log('Available SessionEventCode keys:', availableEvents);
+			
+			// Helper function to safely add event listeners
+			const addEventHandler = (eventName: string, handler: Function) => {
+				try {
+					const eventCode = (solace.SessionEventCode as any)[eventName];
+					if (eventCode !== undefined) {
+						solaceSession.on(eventCode, handler);
+						console.log(`✅ Added ${eventName} handler`);
+					} else {
+						console.warn(`⚠️ Event ${eventName} not available in this Solace version`);
+					}
+				} catch (e) {
+					console.error(`❌ Error setting ${eventName} handler:`, e);
+				}
+			};
+
+			// Connection success
+			addEventHandler('UP_NOTICE', () => {
+				console.log('✅ Connected to Solace broker successfully!');
+				isConnected = true;
+				connectionStatus = 'Connected';
+				subscribeToTopic();
+			});
+
+			// Connection failure
+			addEventHandler('CONNECT_FAILED_ERROR', (sessionEvent: any) => {
+				console.error('❌ Connection failed:', sessionEvent?.infoStr || 'Unknown error');
+				connectionStatus = `Connection Failed: ${sessionEvent?.infoStr || 'Unknown error'}`;
+				isConnected = false;
+			});
+
+			// Try multiple disconnect event names
+			const disconnectEvents = ['DISCONNECT_NOTICE', 'DOWN_ERROR', 'DISCONNECTED', 'SESSION_DOWN'];
+			let disconnectHandlerAdded = false;
+			
+			for (const eventName of disconnectEvents) {
+				if (!disconnectHandlerAdded && (solace.SessionEventCode as any)[eventName] !== undefined) {
+					addEventHandler(eventName, () => {
+						console.log('🔌 Disconnected from Solace');
+						isConnected = false;
+						connectionStatus = 'Disconnected';
+					});
+					disconnectHandlerAdded = true;
+					break;
+				}
 			}
 
-			try {
-				solaceSession.on(solace.SessionEventCode.CONNECT_FAILED_ERROR, (sessionEvent: any) => {
-					console.error('❌ Connection failed:', sessionEvent?.infoStr || 'Unknown error');
-					connectionStatus = `Connection Failed: ${sessionEvent?.infoStr || 'Unknown error'}`;
-					isConnected = false;
-				});
-			} catch (e) {
-				console.error('Error setting CONNECT_FAILED_ERROR handler:', e);
-			}
-
-			try {
-				solaceSession.on(solace.SessionEventCode.DISCONNECT_NOTICE, () => {
-					console.log('🔌 Disconnected from Solace');
-					isConnected = false;
-					connectionStatus = 'Disconnected';
-				});
-			} catch (e) {
-				console.error('Error setting DISCONNECT_NOTICE handler:', e);
-			}
-
-			try {
-				solaceSession.on(solace.SessionEventCode.MESSAGE, handleMessage);
-			} catch (e) {
-				console.error('Error setting MESSAGE handler:', e);
-			}
+			// Message handler
+			addEventHandler('MESSAGE', handleMessage);
 
 			// Set a connection timeout
 			const connectionTimeout = setTimeout(() => {
