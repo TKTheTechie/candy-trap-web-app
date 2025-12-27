@@ -109,6 +109,8 @@ The app supports both MP3 audio files and generated alarm sounds:
 1. **MP3 File**: Place an `alarm.mp3` file in the `static/` directory
 2. **Generated Sound**: If no MP3 is found, the app uses Web Audio API to generate alarm sounds
 
+**Note**: The app automatically handles the correct path for both local development and GitHub Pages deployment.
+
 ## 🚀 Deployment to GitHub Pages
 
 The project includes automated GitHub Pages deployment:

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import { base } from '$app/paths';
 	import { AlarmGenerator, loadAudioFile } from '$lib/audioUtils';
 	import { getSolaceConfig, validateSolaceConfig } from '$lib/config';
 
@@ -24,7 +25,7 @@
 			alarmGenerator = new AlarmGenerator();
 			
 			// Try to load alarm audio file
-			alarmAudio = await loadAudioFile('/alarm.mp3');
+			alarmAudio = await loadAudioFile(`${base}/alarm.mp3`);
 			if (!alarmAudio) {
 				console.log('Using generated alarm sound as fallback');
 			}
